@@ -331,16 +331,6 @@
         .notification.error {
             background-color: #f44336;
         }
-        /* Styles pour les boutons géométriques */
-        .tox .tox-mbtn--active {
-            background: #e8f0fe;
-        }
-        .geometry-preview {
-            border: 1px solid #ddd;
-            margin: 5px 0;
-            text-align: center;
-            padding: 5px;
-        }
         
         /* Pour les écrans plus petits */
         @media (max-width: 768px) {
@@ -466,92 +456,13 @@
         // Initialiser TinyMCE
         tinymce.init({
             selector: '#worksheetContent',
-            height: 600,
+            height: 500,
             plugins: 'advlist autolink lists link image charmap preview anchor searchreplace visualblocks code fullscreen insertdatetime media table paste help wordcount',
-            toolbar: 'undo redo | formatselect | bold italic backcolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat | link image table media | code fullscreen | geometryshapes',
-            valid_elements: '*[*]',
-            extended_valid_elements: '*[*]',
-            entity_encoding: 'raw',
-            content_style: '* { margin: 0; padding: 0; } body { font-family: "Segoe UI", sans-serif; }',
+            toolbar: 'undo redo | formatselect | bold italic backcolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat | help',
             setup: function(ed) {
                 editor = ed;
                 ed.on('change', function() {
                     document.getElementById('saveStatus').textContent = 'Modifications non sauvegardées';
-                });
-                
-                // Ajouter bouton pour formes géométriques
-                ed.ui.registry.addButton('geometryshapes', {
-                    text: 'Formes géométriques',
-                    type: 'menubutton',
-                    fetch: function(callback) {
-                        var items = [
-                            {
-                                type: 'menuitem',
-                                text: 'Rectangle',
-                                onAction: function() {
-                                    ed.insertContent(`
-                                        <div style="position: relative; width: 200px; height: 100px; margin: 20px auto;">
-                                            <div style="position: absolute; width: 100%; height: 100%; background-color: #4e5de3; border-radius: 5px;"></div>
-                                            <div style="position: absolute; top: -20px; width: 100%; text-align: center;">L = 5 cm</div>
-                                            <div style="position: absolute; right: -25px; height: 100%; display: flex; align-items: center;">l = 3 cm</div>
-                                        </div>
-                                    `);
-                                }
-                            },
-                            {
-                                type: 'menuitem',
-                                text: 'Carré',
-                                onAction: function() {
-                                    ed.insertContent(`
-                                        <div style="position: relative; width: 120px; height: 120px; margin: 20px auto;">
-                                            <div style="position: absolute; width: 100%; height: 100%; background-color: #9c27b0; border-radius: 5px;"></div>
-                                            <div style="position: absolute; top: -20px; width: 100%; text-align: center;">c = 4 cm</div>
-                                            <div style="position: absolute; right: -25px; height: 100%; display: flex; align-items: center;">c = 4 cm</div>
-                                        </div>
-                                    `);
-                                }
-                            },
-                            {
-                                type: 'menuitem',
-                                text: 'Figure en T',
-                                onAction: function() {
-                                    ed.insertContent(`
-                                        <div style="position: relative; margin: 20px auto; width: 250px; height: 200px;">
-                                            <!-- Rectangle du haut (A) -->
-                                            <div style="position: absolute; top: 0; left: 0; width: 250px; height: 100px; background-color: #4e5de3;"></div>
-                                            <div style="position: absolute; top: 40px; left: 125px; color: white; font-weight: bold;">A</div>
-                                            
-                                            <!-- Rectangle du bas (B) -->
-                                            <div style="position: absolute; top: 100px; left: 75px; width: 100px; height: 100px; background-color: #32a852;"></div>
-                                            <div style="position: absolute; top: 140px; left: 125px; color: white; font-weight: bold;">B</div>
-                                            
-                                            <!-- Mesures -->
-                                            <div style="position: absolute; top: -20px; width: 250px; text-align: center;">10 dm</div>
-                                            <div style="position: absolute; right: -25px; top: 30px; height: 40px; display: flex; align-items: center;">4 dm</div>
-                                            <div style="position: absolute; right: -25px; top: 130px; height: 40px; display: flex; align-items: center;">5 dm</div>
-                                            <div style="position: absolute; top: 200px; left: 100px; width: 50px; text-align: center;">2 dm</div>
-                                        </div>
-                                    `);
-                                }
-                            },
-                            {
-                                type: 'menuitem',
-                                text: 'Exercice avec réponse',
-                                onAction: function() {
-                                    ed.insertContent(`
-                                        <div style="background-color: #f5f5ff; padding: 12px; border-radius: 8px; margin-bottom: 15px;">
-                                            <p>Un rectangle de 6 cm de longueur et 4 cm de largeur</p>
-                                            <div style="display: flex; align-items: center;">
-                                                <span style="margin-right: 10px;">Aire =</span>
-                                                <input type="text" class="answer-input" id="answer1a" placeholder="Ta réponse..." style="flex: 1; max-width: 120px;">
-                                            </div>
-                                        </div>
-                                    `);
-                                }
-                            }
-                        ];
-                        callback(items);
-                    }
                 });
             }
         });
