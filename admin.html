@@ -370,6 +370,28 @@
                     <button class="create-btn" onclick="createNewWorksheet()">+ Nouvelle Feuille</button>
                 </div>
                 
+                <div class="nav-section">
+                    <div class="nav-title">Modèles</div>
+                    <div class="template-gallery">
+                        <div class="template-card" onclick="loadTemplate('aire')">
+                            <div class="template-icon">📏</div>
+                            <div class="template-title">Aire et Conversions</div>
+                            <div class="template-desc">Mesures d'aire et conversions décimales</div>
+                        </div>
+                        <div class="template-card" onclick="loadTemplate('fractions')">
+                            <div class="template-icon">🧮</div>
+                            <div class="template-title">Fractions</div>
+                            <div class="template-desc">Opérations avec fractions</div>
+                        </div>
+                        <div class="template-card" onclick="loadTemplate('geometrie')">
+                            <div class="template-icon">📐</div>
+                            <div class="template-title">Géométrie</div>
+                            <div class="template-desc">Figures et propriétés géométriques</div>
+                        </div>
+                        <!-- Ajouter d'autres modèles ici -->
+                    </div>
+                </div>
+            </div>
             
             <!-- Panneau d'édition -->
             <div class="edit-panel">
@@ -667,6 +689,167 @@
                         showNotification('Erreur lors de la suppression', 'error');
                     });
             }
+        }
+        
+        // Charger un modèle
+        function loadTemplate(templateName) {
+            // Définir les modèles de base
+            const templates = {
+                'aire': {
+                    title: "Aire et Conversions",
+                    description: "Mesures d'aire et conversions décimales",
+                    content: `
+                    <section id="intro">
+                        <h2><span class="emoji">📝</span> Introduction</h2>
+                        <p>Cette feuille de révision va t'aider à maîtriser:</p>
+                        <ul>
+                            <li>Les unités de mesure d'aire</li>
+                            <li>Comment choisir l'unité appropriée</li>
+                            <li>Comment mesurer et calculer l'aire</li>
+                            <li>Comment convertir entre décimales, fractions et pourcentages</li>
+                        </ul>
+                    </section>
+                    
+                    <section id="unitesMesure">
+                        <h2><span class="emoji">📏</span> Les Unités de Mesure (Aire)</h2>
+                        <p>L'aire est la mesure de la surface occupée par une figure plane. On l'exprime généralement en unités carrées.</p>
+                        
+                        <div class="exercise">
+                            <h3>Les unités d'aire principales:</h3>
+                            <table>
+                                <tr>
+                                    <th>Unité</th>
+                                    <th>Symbole</th>
+                                    <th>Équivalence</th>
+                                    <th>Exemple d'utilisation</th>
+                                </tr>
+                                <tr>
+                                    <td>Kilomètre carré</td>
+                                    <td>km²</td>
+                                    <td>1 000 000 m²</td>
+                                    <td>Surface d'une ville</td>
+                                </tr>
+                                <!-- Ajouter d'autres unités ici -->
+                            </table>
+                        </div>
+                        
+                        <div class="exercise">
+                            <h3>Exercice 1: Classer les unités d'aire</h3>
+                            <p>Classe les unités suivantes dans les bonnes catégories:</p>
+                            <p><strong>Unités disponibles:</strong> km², ha, m², a, cm², mm², dm²</p>
+                            
+                            <p>a) Grandes surfaces:</p>
+                            <input type="text" class="answer-input" id="answer1a" placeholder="Ta réponse ici...">
+                            
+                            <p>b) Surfaces moyennes:</p>
+                            <input type="text" class="answer-input" id="answer1b" placeholder="Ta réponse ici...">
+                            
+                            <p>c) Petites surfaces:</p>
+                            <input type="text" class="answer-input" id="answer1c" placeholder="Ta réponse ici...">
+                        </div>
+                    </section>
+                    `
+                },
+                'fractions': {
+                    title: "Opérations avec Fractions",
+                    description: "Addition, soustraction, multiplication et division de fractions",
+                    content: `
+                    <section id="intro">
+                        <h2><span class="emoji">📝</span> Introduction</h2>
+                        <p>Cette feuille de révision va t'aider à maîtriser les opérations avec les fractions:</p>
+                        <ul>
+                            <li>Addition et soustraction de fractions</li>
+                            <li>Multiplication et division de fractions</li>
+                            <li>Simplification de fractions</li>
+                            <li>Conversion entre fractions, décimales et pourcentages</li>
+                        </ul>
+                    </section>
+                    
+                    <section id="additionSoustraction">
+                        <h2><span class="emoji">➕</span> Addition et Soustraction de Fractions</h2>
+                        <p>Pour additionner ou soustraire des fractions, il faut d'abord avoir le même dénominateur.</p>
+                        
+                        <div class="exercise">
+                            <h3>Exercice 1: Addition de fractions</h3>
+                            <p>Calcule les additions suivantes:</p>
+                            
+                            <p>a) 1/4 + 2/4 = </p>
+                            <input type="text" class="answer-input" id="answer1a" placeholder="Ta réponse ici...">
+                            
+                            <p>b) 1/3 + 1/6 = </p>
+                            <input type="text" class="answer-input" id="answer1b" placeholder="Ta réponse ici...">
+                            
+                            <p>c) 2/5 + 1/10 = </p>
+                            <input type="text" class="answer-input" id="answer1c" placeholder="Ta réponse ici...">
+                        </div>
+                    </section>
+                    `
+                },
+                'geometrie': {
+                    title: "Géométrie",
+                    description: "Propriétés des figures géométriques",
+                    content: `
+                    <section id="intro">
+                        <h2><span class="emoji">📝</span> Introduction</h2>
+                        <p>Cette feuille de révision va t'aider à maîtriser:</p>
+                        <ul>
+                            <li>Les propriétés des polygones</li>
+                            <li>Les angles dans les figures géométriques</li>
+                            <li>Les quadrilatères particuliers</li>
+                            <li>La symétrie et les transformations</li>
+                        </ul>
+                    </section>
+                    
+                    <section id="polygones">
+                        <h2><span class="emoji">📐</span> Les Polygones</h2>
+                        <p>Un polygone est une figure plane fermée limitée par des segments de droite.</p>
+                        
+                        <div class="exercise">
+                            <h3>Exercice 1: Identifier les polygones</h3>
+                            <p>Nomme les polygones suivants selon leur nombre de côtés:</p>
+                            
+                            <p>a) 3 côtés:</p>
+                            <input type="text" class="answer-input" id="answer1a" placeholder="Ta réponse ici...">
+                            
+                            <p>b) 4 côtés:</p>
+                            <input type="text" class="answer-input" id="answer1b" placeholder="Ta réponse ici...">
+                            
+                            <p>c) 5 côtés:</p>
+                            <input type="text" class="answer-input" id="answer1c" placeholder="Ta réponse ici...">
+                            
+                            <p>d) 6 côtés:</p>
+                            <input type="text" class="answer-input" id="answer1d" placeholder="Ta réponse ici...">
+                        </div>
+                    </section>
+                    `
+                }
+            };
+            
+            // Vérifier si le modèle existe
+            if (!templates[templateName]) {
+                showNotification('Modèle non trouvé', 'error');
+                return;
+            }
+            
+            // Créer une nouvelle feuille avec le modèle
+            isNewWorksheet = true;
+            currentWorksheetId = generateWorksheetId();
+            
+            // Remplir le formulaire avec le modèle
+            document.getElementById('worksheetTitle').value = templates[templateName].title;
+            document.getElementById('worksheetDescription').value = templates[templateName].description;
+            
+            // Date du jour
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('worksheetDate').value = today;
+            
+            // Contenu du modèle
+            editor.setContent(templates[templateName].content);
+            
+            document.getElementById('saveStatus').textContent = 'Modèle chargé - Non sauvegardé';
+            
+            // Notification
+            showNotification('Modèle chargé avec succès', 'success');
         }
         
         // Afficher une notification
