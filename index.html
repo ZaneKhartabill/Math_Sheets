@@ -141,6 +141,17 @@
         // Initialiser Firebase
         firebase.initializeApp(firebaseConfig);
         
+        // Vérifier s'il y a un ID de feuille de travail dans l'URL
+        window.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const id = urlParams.get('id');
+            
+            if (id) {
+                // Rediriger vers la feuille de travail (avec compatibilité pour l'ancien système)
+                window.location.href = `worksheet.html?student=sham&id=${id}`;
+            }
+        });
+        
         // Fonction pour sélectionner un élève
         function selectStudent(student) {
             // Rediriger vers le tableau de bord de l'élève
