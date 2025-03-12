@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Migration Tool</title>
+    <!-- Firebase SDK -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.2/firebase-app-compat.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.22.2/firebase-database-compat.min.js"></script>
+    
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .card {
+            background-color: #f5f5f5;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        button {
+            background-color: #4e5de3;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #3a46b1;
+        }
+        #log {
+            background-color: #f8f8f8;
+            border: 1px solid #ddd;
+            padding: 10px;
+            height: 300px;
+            overflow-y: auto;
+            font-family: monospace;
+            margin-top: 20px;
+        }
+        .success {
+            color: #4CAF50;
+        }
+        .error {
+            color: #f44336;
+        }
+    </style>
+</head>
+<body>
+    <h1>Migration Tool</h1>
+    <p>This utility will migrate worksheets from the old system to the new one.</p>
+    
+    <div class="card">
+        <h2>Migrate Single Worksheet</h2>
+        <p>Enter the ID of a worksheet to migrate to Sham's account:</p>
+        <input type="text" id="worksheetId" placeholder="e.g., WXA8ME" value="WXA8ME">
+        <button onclick="migrateWorksheet()">Migrate Worksheet</button>
+    </div>
+    
+    <div class="card">
+        <h2>Migrate All Worksheets</h2>
+        <p>This will migrate all worksheets from the old system to Sham's account:</p>
+        <button onclick="migrateAllWorksheets()">Migrate All Worksheets</button>
+    </div>
+    
+    <div id="log">Migration log will appear here...</div>
+    
+    <script>
+        // Configuration Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyBnFB7ZoqliCOF1a57G0cbLOEoyMGzf9QI",
+            authDomain: "sham-s-worksheets.firebaseapp.com",
+            databaseURL: "https://sham-s-worksheets-default-rtdb.firebaseio.com",
+            projectId: "sham-s-worksheets",
+            storageBucket: "sham-s-worksheets.firebasestorage.app",
+            messagingSenderId: "408757720197",
+            appId: "1:408757720197:web:fd63c16cfc0fb3afc185ec",
+            measurementId: "G-CZ7BSB67LV"
+        };
+        
+        // Initialiser Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        
+        // Fonction pour ajouter un message au log
+        function log(message, isError = false) {
+            const logElement = document.getElementById('log');
+            const messageElement = document.createElement('div');
+            messageElement.textContent = `${new Date().toLocaleTimeString()}: ${message}`;
+            messageElement.className = isError ? 'error' : 'success';
+            logElement.appendChild(messageElement);
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+        
+        // Fonction pour migrer une feuille de travail spécifique
+        function migrateWorksheet() {
+            const worksheetId = document.getElementById('worksheetId').value.trim();
+            
+            if (!worksheetId) {
+                log('Veuillez saisir un ID de feuille de travail.', true);
+                return;
+            }
+            
+            log(`Début de la migration de la feuille ${worksheetId}...`);
+            
+            // Référence à l'ancienne localisation
+            const oldRef = database.ref(`sheets/${worksheetId}`);
+            
+            oldRef.once('value', (snapshot) => {
+                const data = snapshot.val();
+                
+                if (!data) {
+                    log(`Feuille ${worksheetId} non trouvée.`, true);
+                    return;
+                }
+                
+                log(`Feuille ${worksheetId} trouvée, préparation de la migration...`);
+                
+                // Convertir les données au nouveau format
+                const newData = {
+                    title: 'Révision Mathématiques', // Titre par défaut si non spécifié
+                    description: 'Aire et Conversions', // Description par défaut si non spécifiée
+                    date: new Date().toISOString().split('T')[0], // Date du jour
+                    content: extractHtmlContent(), // Extraire le contenu HTML de l'ancienne structure
+                    lastUpdated: new Date().toISOString(),
+                    progress: data // Préserver toutes les réponses
+                };
+                
+                // Référence à la nouvelle localisation
+                const newRef = database.ref(`worksheets/sham/${worksheetId}`);
+                
+                // Sauvegarder les données à la nouvelle localisation
+                newRef.set(newData)
+                    .then(() => {
+                        log(`Migration de la feuille ${worksheetId} terminée avec succès!`);
+                    })
+                    .catch((error) => {
+                        log(`Erreur lors de la migration: ${error.message}`, true);
+                    });
+            });
+        }
+        
+        // Fonction pour migrer toutes les feuilles de travail
+        function migrateAllWorksheets() {
+            log('Début de la migration de toutes les feuilles...');
+            
+            // Référence à l'ancienne localisation
+            const oldRef = database.ref('sheets');
+            
+            oldRef.once('value', (snapshot) => {
+                const data = snapshot.val();
+                
+                if (!data) {
+                    log('Aucune feuille trouvée dans l\'ancien système.', true);
+                    return;
+                }
+                
+                const worksheetIds = Object.keys(data);
+                log(`${worksheetIds.length} feuilles trouvées.`);
+                
+                let migrated = 0;
+                
+                worksheetIds.forEach(id => {
+                    // Convertir les données au nouveau format
+                    const newData = {
+                        title: 'Révision Mathématiques',
+                        description: 'Feuille migrée',
+                        date: new Date().toISOString().split('T')[0],
+                        content: extractHtmlContent(),
+                        lastUpdated: new Date().toISOString(),
+                        progress: data[id] // Préserver toutes les réponses
+                    };
+                    
+                    // Référence à la nouvelle localisation
+                    const newRef = database.ref(`worksheets/sham/${id}`);
+                    
+                    // Sauvegarder les données à la nouvelle localisation
+                    newRef.set(newData)
+                        .then(() => {
+                            migrated++;
+                            log(`Feuille ${id} migrée (${migrated}/${worksheetIds.length})`);
+                            
+                            if (migrated === worksheetIds.length) {
+                                log('Migration de toutes les feuilles terminée avec succès!');
+                            }
+                        })
+                        .catch((error) => {
+                            log(`Erreur lors de la migration de ${id}: ${error.message}`, true);
+                        });
+                });
+            });
+        }
+        
+        // Fonction pour extraire le contenu HTML de l'ancien index.html
+        function extractHtmlContent() {
+            // Cette fonction est une simplification - dans un cas réel, vous devriez extraire le contenu
+            // de la feuille de l'ancienne structure. Pour notre démo, nous utilisons un contenu fixe.
+            return `
+            <section id="intro">
+                <h2><span class="emoji">📝</span> Introduction</h2>
+                <p>Bonjour! Cette feuille de révision va t'aider à maîtriser:</p>
+                <ul>
+                    <li>Les unités de mesure d'aire</li>
+                    <li>Comment choisir l'unité appropriée</li>
+                    <li>Comment mesurer et calculer l'aire</li>
+                    <li>Comment convertir entre décimales, fractions et pourcentages</li>
+                </ul>
+                <p>Complète tous les exercices et ton progrès sera automatiquement sauvegardé! ⭐</p>
+            </section>
+            
+            <section id="unitesMesure">
+                <h2><span class="emoji">📏</span> Les Unités de Mesure (Aire)</h2>
+                <p>L'aire est la mesure de la surface occupée par une figure plane. On l'exprime généralement en unités carrées.</p>
+                
+                <div class="exercise">
+                    <h3>Les unités d'aire principales:</h3>
+                    <table>
+                        <tr>
+                            <th>Unité</th>
+                            <th>Symbole</th>
+                            <th>Équivalence</th>
+                            <th>Exemple d'utilisation</th>
+                        </tr>
+                        <tr>
+                            <td>Kilomètre carré</td>
+                            <td>km²</td>
+                            <td>1 000 000 m²</td>
+                            <td>Surface d'une ville</td>
+                        </tr>
+                        <tr>
+                            <td>Hectare</td>
+                            <td>ha</td>
+                            <td>10 000 m²</td>
+                            <td>Surface d'un terrain agricole</td>
+                        </tr>
+                        <tr>
+                            <td>Are</td>
+                            <td>a</td>
+                            <td>100 m²</td>
+                            <td>Petite parcelle de terrain</td>
+                        </tr>
+                        <tr>
+                            <td>Mètre carré</td>
+                            <td>m²</td>
+                            <td>Unité de base</td>
+                            <td>Surface d'une chambre</td>
+                        </tr>
+                        <tr>
+                            <td>Décimètre carré</td>
+                            <td>dm²</td>
+                            <td>0,01 m²</td>
+                            <td>Surface d'un livre</td>
+                        </tr>
+                        <tr>
+                            <td>Centimètre carré</td>
+                            <td>cm²</td>
+                            <td>0,0001 m²</td>
+                            <td>Surface d'un timbre</td>
+                        </tr>
+                        <tr>
+                            <td>Millimètre carré</td>
+                            <td>mm²</td>
+                            <td>0,000001 m²</td>
+                            <td>Section d'un fil électrique</td>
+                        </tr>
+                    </table>
+                </div>
+                
+                <div class="exercise">
+                    <h3>Exercice 1: Classer les unités d'aire</h3>
+                    <p>Classe les unités suivantes dans les bonnes catégories:</p>
+                    <p><strong>Unités disponibles:</strong> km², ha, m², a, cm², mm², dm²</p>
+                    
+                    <p>a) Grandes surfaces:</p>
+                    <input type="text" class="answer-input" id="answer1a" placeholder="Ta réponse ici...">
+                    
+                    <p>b) Surfaces moyennes:</p>
+                    <input type="text" class="answer-input" id="answer1b" placeholder="Ta réponse ici...">
+                    
+                    <p>c) Petites surfaces:</p>
+                    <input type="text" class="answer-input" id="answer1c" placeholder="Ta réponse ici...">
+                </div>
+            </section>
+            `;
+        }
+    </script>
+</body>
+</html>
